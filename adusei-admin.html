@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Adusei Kenneth — Sites Admin</title>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js" onload="window._lucideReady=true;window._lucideQueue&&window._lucideQueue.forEach(function(f){f()});"></script>
+<style>
+  /* ── reset & base ── */
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0a0a; --bg2:#111; --bg3:#181818; --surf:#1e1e1e;
+    --bord:rgba(255,255,255,.08);
+    --txt:#f0f0f0; --txt2:#888; --txt3:#444;
+    --green:#3ddc84; --green-muted:rgba(61,220,132,.12); --green-glow:rgba(61,220,132,.25);
+    --red:#ff5252;
+  }
+  body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0}
+  input,button{font-family:inherit}
+
+  /* ── layout ── */
+  .shell{max-width:820px;margin:0 auto;padding:48px 24px 80px}
+
+  /* ── header ── */
+  .hd{display:flex;align-items:center;gap:16px;margin-bottom:40px;padding-bottom:24px;border-bottom:1px solid var(--bord)}
+  .hd-icon{width:44px;height:44px;border-radius:12px;background:var(--green-muted);border:1px solid rgba(61,220,132,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .hd-icon svg{color:var(--green)}
+  .hd-title{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;color:var(--txt)}
+  .hd-sub{font-size:.75rem;color:var(--txt3);margin-top:2px;font-family:monospace;letter-spacing:.04em}
+  .hd-badge{margin-left:auto;font-size:.6rem;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:100px;background:var(--green-muted);color:var(--green);border:1px solid rgba(61,220,132,.2)}
+
+  /* ── setup card ── */
+  .setup-card{background:var(--bg2);border:1px solid var(--bord);border-radius:14px;padding:28px;margin-bottom:32px}
+  .setup-title{font-size:.7rem;font-family:monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.7rem;font-family:monospace;letter-spacing:.08em;color:var(--txt3);text-transform:uppercase;margin-bottom:6px}
+  .field input{width:100%;background:var(--bg3);border:1px solid var(--bord);color:var(--txt);padding:11px 14px;border-radius:8px;font-size:.85rem;outline:none;transition:border-color .2s,box-shadow .2s}
+  .field input:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-muted)}
+  .field input::placeholder{color:var(--txt3)}
+
+  /* ── status strip ── */
+  #status-strip{display:none;align-items:center;gap:10px;padding:12px 16px;border-radius:8px;font-size:.78rem;margin-bottom:20px;font-family:monospace}
+  #status-strip.ok{background:var(--green-muted);border:1px solid rgba(61,220,132,.2);color:var(--green);display:flex}
+  #status-strip.err{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.2);color:var(--red);display:flex}
+  #status-strip.loading{background:var(--surf);border:1px solid var(--bord);color:var(--txt2);display:flex}
+
+  /* ── add form ── */
+  .add-card{background:var(--bg2);border:1px solid var(--bord);border-radius:14px;padding:28px;margin-bottom:32px}
+  .add-row{display:flex;gap:12px;flex-wrap:wrap}
+  .add-row .field{flex:1;min-width:200px;margin-bottom:0}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:11px 20px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .btn-green{background:var(--green);color:#000}
+  .btn-green:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 6px 20px var(--green-glow)}
+  .btn-outline{background:transparent;border:1px solid var(--bord);color:var(--txt2)}
+  .btn-outline:hover{border-color:var(--txt2);color:var(--txt)}
+  .btn-red{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.2);color:var(--red)}
+  .btn-red:hover{background:rgba(255,82,82,.18)}
+  .btn-sm{padding:7px 12px;font-size:.68rem}
+
+  /* ── sites list ── */
+  .sites-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .sites-title{font-size:.7rem;font-family:monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--txt3)}
+  #sites-list{display:flex;flex-direction:column;gap:10px}
+  .site-row{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--bord);border-radius:10px;padding:14px 16px;transition:border-color .2s}
+  .site-row:hover{border-color:rgba(61,220,132,.2)}
+  .site-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .site-info{flex:1;min-width:0}
+  .site-name{font-size:.88rem;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .site-url{font-size:.7rem;font-family:monospace;color:var(--txt3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .site-actions{display:flex;gap:8px;flex-shrink:0}
+
+  /* ── empty state ── */
+  .empty{text-align:center;padding:48px 24px;border:1px dashed rgba(255,255,255,.07);border-radius:12px;color:var(--txt3);font-size:.82rem}
+  .empty svg{margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;opacity:.4}
+
+  /* ── spinner ── */
+  .spin{width:18px;height:18px;border:2px solid var(--bord);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ── save indicator ── */
+  .saving-badge{font-size:.6rem;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-left:8px;display:none}
+  .saving-badge.saving{background:var(--surf);color:var(--txt3);display:inline-flex;align-items:center;gap:6px}
+  .saving-badge.saved{background:var(--green-muted);color:var(--green);display:inline-flex;align-items:center;gap:6px}
+
+  /* ── instructions ── */
+  .inst{background:var(--bg2);border:1px solid var(--bord);border-left:3px solid var(--green);border-radius:0 10px 10px 0;padding:18px 20px;margin-bottom:28px;font-size:.8rem;line-height:1.7;color:var(--txt2)}
+  .inst strong{color:var(--txt);font-weight:600}
+  .inst code{background:var(--bg3);border:1px solid var(--bord);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:.78rem;color:var(--green)}
+  .inst ol{padding-left:18px;margin-top:10px}
+  .inst ol li{margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Header -->
+  <div class="hd">
+    <div class="hd-icon"><i data-lucide="shield-check" style="width:22px;height:22px"></i></div>
+    <div>
+      <div class="hd-title">Sites Admin</div>
+      <div class="hd-sub">Adusei Kenneth — Private tool. Never upload this file.</div>
+    </div>
+    <div class="hd-badge"><i data-lucide="lock" style="width:10px;height:10px;vertical-align:middle;margin-right:4px"></i>Private</div>
+  </div>
+
+  <!-- Setup instructions -->
+  <div class="inst">
+    <strong>First-time setup — 2 minutes:</strong>
+    <ol>
+      <li>Go to <strong>jsonbin.io</strong> → sign up free → click <strong>Create Bin</strong></li>
+      <li>Paste in <code>[]</code> as the initial content and save</li>
+      <li>Copy your <strong>Bin ID</strong> (the string in the URL after <code>/b/</code>) and paste it below</li>
+      <li>Go to <strong>API Keys</strong> in your JSONBin dashboard → copy your <strong>Master Key</strong> or create an access key with write permission → paste it below</li>
+      <li>Open your portfolio HTML → find <code>YOUR_BIN_ID_HERE</code> → replace it with the same Bin ID</li>
+    </ol>
+    <div style="margin-top:10px;color:var(--txt3);font-size:.75rem">Your secret key is stored only in this browser's localStorage — it never touches your portfolio file or any server you don't control.</div>
+  </div>
+
+  <!-- JSONBin credentials -->
+  <div class="setup-card">
+    <div class="setup-title"><i data-lucide="settings" style="width:14px;height:14px"></i> JSONBin Configuration</div>
+    <div class="field">
+      <label>Bin ID</label>
+      <input id="cfg-bin" type="text" placeholder="e.g. 64f3a1b2e41b4d3e2c8b1234" autocomplete="off"/>
+    </div>
+    <div class="field">
+      <label>Secret Key (write access)</label>
+      <input id="cfg-key" type="password" placeholder="$2a$10$..." autocomplete="off"/>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-green" onclick="saveConfig()">
+        <i data-lucide="save" style="width:14px;height:14px"></i> Save Config
+      </button>
+      <button class="btn btn-outline" onclick="testConnection()">
+        <i data-lucide="zap" style="width:14px;height:14px"></i> Test Connection
+      </button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div id="status-strip">
+    <span id="status-icon"></span>
+    <span id="status-msg"></span>
+  </div>
+
+  <!-- Add a site -->
+  <div class="add-card">
+    <div class="setup-title"><i data-lucide="plus-circle" style="width:14px;height:14px"></i> Add New Site</div>
+    <div class="add-row">
+      <div class="field">
+        <label>URL</label>
+        <input id="add-url" type="url" placeholder="https://yourproject.com" onkeydown="if(event.key==='Enter')addSite()"/>
+      </div>
+      <div class="field">
+        <label>Project Name</label>
+        <input id="add-label" type="text" placeholder="e.g. Volta Creative Studio" onkeydown="if(event.key==='Enter')addSite()"/>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <button class="btn btn-green" onclick="addSite()">
+        <i data-lucide="plus" style="width:14px;height:14px"></i> Add Site
+      </button>
+      <span id="saving-badge" class="saving-badge"></span>
+    </div>
+  </div>
+
+  <!-- Sites list -->
+  <div class="sites-header">
+    <div class="sites-title">Current Sites <span id="sites-count" style="color:var(--txt3)"></span></div>
+    <button class="btn btn-outline btn-sm" onclick="loadSites()">
+      <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Refresh
+    </button>
+  </div>
+  <div id="sites-list"></div>
+
+</div>
+
+<script>
+window._lucideQueue=[];
+window.initIcons=function(){
+  if(window._lucideReady&&window.lucide){ lucide.createIcons(); }
+  else{ window._lucideQueue.push(function(){ lucide.createIcons(); }); }
+};
+</script>
+<script>
+(function(){
+  const CFG_KEY = 'ak_admin_cfg';
+
+  function getConfig(){
+    try{ return JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); }catch(e){ return {}; }
+  }
+  function saveConfigStore(cfg){
+    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  }
+
+  // Restore saved config on load
+  window.addEventListener('DOMContentLoaded', ()=>{
+    initIcons();
+    const cfg = getConfig();
+    if(cfg.binId) document.getElementById('cfg-bin').value = cfg.binId;
+    if(cfg.key)   document.getElementById('cfg-key').value = cfg.key;
+    loadSites();
+  });
+
+  function apiUrl(binId){ return 'https://api.jsonbin.io/v3/b/' + binId; }
+  function headers(key){ return { 'Content-Type':'application/json', 'X-Master-Key': key }; }
+
+  function status(type, msg){
+    const strip = document.getElementById('status-strip');
+    const icon  = document.getElementById('status-icon');
+    const text  = document.getElementById('status-msg');
+    strip.className = type;
+    text.textContent = msg;
+    if(type === 'loading'){
+      icon.innerHTML = '<div class="spin"></div>';
+    } else if(type === 'ok'){
+      icon.innerHTML = '<i data-lucide="check-circle" style="width:16px;height:16px"></i>';
+      initIcons();
+      setTimeout(()=>{ strip.style.display='none'; }, 3000);
+    } else if(type === 'err'){
+      icon.innerHTML = '<i data-lucide="alert-circle" style="width:16px;height:16px"></i>';
+      initIcons();
+    }
+  }
+
+  function saving(state){
+    const b = document.getElementById('saving-badge');
+    if(state === 'saving'){
+      b.className = 'saving-badge saving';
+      b.innerHTML = '<div class="spin" style="width:12px;height:12px"></div> Saving...';
+    } else if(state === 'saved'){
+      b.className = 'saving-badge saved';
+      b.innerHTML = '<i data-lucide="check" style="width:12px;height:12px"></i> Saved';
+      initIcons();
+      setTimeout(()=>{ b.style.display='none'; b.className='saving-badge'; }, 2500);
+    } else {
+      b.className = 'saving-badge';
+    }
+  }
+
+  window.saveConfig = function(){
+    const binId = document.getElementById('cfg-bin').value.trim();
+    const key   = document.getElementById('cfg-key').value.trim();
+    if(!binId || !key){ status('err', 'Both Bin ID and Secret Key are required.'); return; }
+    saveConfigStore({binId, key});
+    status('ok', 'Config saved to this browser. Ready to use.');
+    loadSites();
+  };
+
+  window.testConnection = async function(){
+    const cfg = getConfig();
+    if(!cfg.binId || !cfg.key){ status('err', 'Save your config first.'); return; }
+    status('loading', 'Testing connection...');
+    try{
+      const res = await fetch(apiUrl(cfg.binId) + '/latest', { headers: headers(cfg.key) });
+      if(res.ok){
+        status('ok', 'Connection successful — JSONBin is reachable and your key works.');
+      } else {
+        const j = await res.json();
+        status('err', 'Error ' + res.status + ': ' + (j.message || 'Check your Bin ID and key.'));
+      }
+    } catch(e){
+      status('err', 'Network error: ' + e.message);
+    }
+  };
+
+  async function fetchSites(){
+    const cfg = getConfig();
+    if(!cfg.binId || !cfg.key) return [];
+    const res = await fetch(apiUrl(cfg.binId) + '/latest', { headers: headers(cfg.key) });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    return j.record || [];
+  }
+
+  async function putSites(sites){
+    const cfg = getConfig();
+    const res = await fetch(apiUrl(cfg.binId), {
+      method: 'PUT',
+      headers: headers(cfg.key),
+      body: JSON.stringify(sites)
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  window.loadSites = async function(){
+    const cfg = getConfig();
+    const list = document.getElementById('sites-list');
+    if(!cfg.binId || !cfg.key){
+      list.innerHTML = '<div class="empty"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Save your JSONBin config above to get started.</div>';
+      return;
+    }
+    list.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px 0;color:var(--txt3);font-size:.8rem"><div class="spin"></div> Loading...</div>';
+    try{
+      const sites = await fetchSites();
+      renderList(sites);
+    } catch(e){
+      list.innerHTML = '<div class="empty" style="color:var(--red)">Failed to load: ' + e.message + '</div>';
+    }
+  };
+
+  function renderList(sites){
+    const list  = document.getElementById('sites-list');
+    const count = document.getElementById('sites-count');
+    count.textContent = sites.length ? '(' + sites.length + ')' : '';
+
+    if(!sites.length){
+      list.innerHTML = '<div class="empty"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12.01" y2="8"/><polyline points="11 12 12 12 12 16"/></svg>No sites yet. Add one above.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    sites.forEach((s, idx) => {
+      const row = document.createElement('div');
+      row.className = 'site-row';
+      const label = s.label || s.url;
+      row.innerHTML = `
+        <div class="site-dot"></div>
+        <div class="site-info">
+          <div class="site-name">${label}</div>
+          <div class="site-url">${s.url}</div>
+        </div>
+        <div class="site-actions">
+          <a href="${s.url}" target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="text-decoration:none">
+            <i data-lucide="arrow-up-right" style="width:12px;height:12px"></i>
+          </a>
+          <button class="btn btn-red btn-sm" onclick="removeSite('${s.id}')">
+            <i data-lucide="trash-2" style="width:12px;height:12px"></i>
+          </button>
+        </div>`;
+      list.appendChild(row);
+    });
+    initIcons();
+  }
+
+  window.addSite = async function(){
+    const cfg   = getConfig();
+    if(!cfg.binId || !cfg.key){ status('err', 'Configure your JSONBin credentials first.'); return; }
+
+    const urlEl   = document.getElementById('add-url');
+    const labelEl = document.getElementById('add-label');
+    let url = urlEl.value.trim();
+    if(!url){ urlEl.focus(); return; }
+    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    try{ new URL(url); } catch(e){
+      urlEl.style.borderColor='var(--red)';
+      setTimeout(()=>{ urlEl.style.borderColor=''; },1400);
+      return;
+    }
+
+    saving('saving');
+    try{
+      const sites = await fetchSites();
+      if(sites.some(s => s.url === url)){
+        status('err', 'That URL is already in the list.');
+        saving(null);
+        return;
+      }
+      sites.unshift({ id:'s'+Date.now(), url, label:labelEl.value.trim(), added:Date.now() });
+      await putSites(sites);
+      urlEl.value = ''; labelEl.value = '';
+      saving('saved');
+      renderList(sites);
+    } catch(e){
+      saving(null);
+      status('err', 'Failed to save: ' + e.message);
+    }
+  };
+
+  window.removeSite = async function(id){
+    if(!confirm('Remove this site?')) return;
+    const cfg = getConfig();
+    if(!cfg.binId || !cfg.key) return;
+    saving('saving');
+    try{
+      const sites = (await fetchSites()).filter(s => s.id !== id);
+      await putSites(sites);
+      saving('saved');
+      renderList(sites);
+    } catch(e){
+      saving(null);
+      status('err', 'Failed to remove: ' + e.message);
+    }
+  };
+
+})();
+</script>
+</body>
+</html>
