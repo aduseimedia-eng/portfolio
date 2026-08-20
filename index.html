@@ -2301,8 +2301,7 @@
             </article>
             <article class="github-feed">
               <div class="github-feed-head">
-                <small>Recent actions</small
-                >
+                <small>Recent actions</small>
               </div>
               <ul class="github-events" id="github-events">
                 <li class="github-empty">Loading recent public activity…</li>
@@ -2779,6 +2778,10 @@
       -->
     </footer>
     <script>
+      const designWork = document.getElementById("design");
+      const contactSection = document.getElementById("contact");
+      contactSection.parentNode.insertBefore(designWork, contactSection);
+
       const track = document.getElementById("design-track"),
         cards = [...track.children],
         status = document.getElementById("carousel-status");
