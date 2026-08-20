@@ -699,17 +699,57 @@
         text-transform: uppercase;
         white-space: nowrap;
       }
+      .contribution-chart {
+        display: grid;
+        grid-template-columns: 26px minmax(0, 1fr);
+        gap: 9px;
+        margin-top: 22px;
+      }
+      .contribution-day-labels {
+        display: grid;
+        grid-template-rows: 20px repeat(7, 10px);
+        gap: 4px;
+        color: var(--muted);
+        font:
+          400 0.54rem "DM Mono",
+          monospace;
+      }
+      .contribution-day-labels span:nth-child(3),
+      .contribution-day-labels span:nth-child(5),
+      .contribution-day-labels span:nth-child(7) {
+        visibility: hidden;
+      }
+      .contribution-scroll {
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        padding-bottom: 5px;
+        scrollbar-width: thin;
+      }
+      .contribution-months {
+        display: grid;
+        grid-template-columns: repeat(53, 10px);
+        column-gap: 4px;
+        min-width: 738px;
+        height: 20px;
+        color: var(--muted);
+        font:
+          400 0.54rem "DM Mono",
+          monospace;
+      }
+      .contribution-months span {
+        white-space: nowrap;
+      }
       .contribution-grid {
         display: grid;
         grid-auto-flow: column;
-        grid-template-rows: repeat(7, 1fr);
-        grid-template-columns: repeat(53, minmax(7px, 1fr));
+        grid-template-rows: repeat(7, 10px);
+        grid-template-columns: repeat(53, 10px);
         gap: 4px;
-        margin-top: 23px;
+        min-width: 738px;
       }
       .contribution-day {
-        aspect-ratio: 1;
-        min-width: 0;
+        width: 10px;
+        height: 10px;
         border-radius: 2px;
         background: #ebe8e1;
       }
@@ -753,6 +793,9 @@
       }
       .contribution-legend i:nth-of-type(5) {
         background: var(--red);
+      }
+      .contribution-swipe {
+        display: none;
       }
       .work .section-label {
         color: #bbc0c7;
@@ -1713,9 +1756,28 @@
           display: inline-block;
           margin-top: 13px;
         }
-        .contribution-grid {
-          gap: 2px;
+        .contribution-chart {
+          grid-template-columns: 23px minmax(0, 1fr);
+          gap: 6px;
           margin-top: 18px;
+        }
+        .contribution-scroll {
+          -webkit-overflow-scrolling: touch;
+        }
+        .contribution-swipe {
+          display: block;
+          margin: 11px 0 0 29px;
+          color: var(--muted);
+          font:
+            400 0.56rem "DM Mono",
+            monospace;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+        .contribution-grid,
+        .contribution-months {
+          min-width: 682px;
+          gap: 3px;
         }
         .contribution-legend {
           margin-top: 10px;
@@ -2251,10 +2313,23 @@
                 >
               </div>
               <div
-                class="contribution-grid"
-                id="contribution-grid"
+                class="contribution-chart"
                 aria-label="GitHub contribution chart"
-              ></div>
+              >
+                <div class="contribution-day-labels" aria-hidden="true">
+                  <span></span><span>Sun</span><span></span><span>Tue</span
+                  ><span></span><span>Thu</span><span></span><span>Sat</span>
+                </div>
+                <div class="contribution-scroll">
+                  <div
+                    class="contribution-months"
+                    id="contribution-months"
+                    aria-hidden="true"
+                  ></div>
+                  <div class="contribution-grid" id="contribution-grid"></div>
+                </div>
+              </div>
+              <p class="contribution-swipe">Swipe to explore the year →</p>
               <div class="contribution-legend" aria-hidden="true">
                 <span>Less</span><i></i><i></i><i></i><i></i><i></i
                 ><span>More</span>
@@ -2792,6 +2867,7 @@
         }).format(new Date(timestamp));
       }
       const contributionGrid = document.getElementById("contribution-grid");
+      const contributionMonths = document.getElementById("contribution-months");
       const contributionTotal = document.getElementById(
         "github-contribution-total",
       );
@@ -2800,43 +2876,50 @@
         return Math.min(4, Math.max(1, Math.ceil((count / maximum) * 4)));
       }
       function renderContributions(data) {
-        const contributionDays = data.weeks
-          .flatMap((week) => week.contributionDays)
-          .slice(-371);
+        const contributionDays = (data.contributions || []).slice(-371);
         const days = contributionDays.length
           ? contributionDays
           : Array.from({ length: 371 }, () => ({
-              contributionCount: 0,
+              count: 0,
               date: "Awaiting first refresh",
             }));
-        const maximum = Math.max(
-          1,
-          ...days.map((day) => day.contributionCount),
-        );
+        const maximum = Math.max(1, ...days.map((day) => day.count));
         contributionGrid.replaceChildren();
-        days.forEach((day) => {
+        contributionMonths.replaceChildren();
+        let previousMonth = "";
+        days.forEach((day, index) => {
+          const month = new Intl.DateTimeFormat("en", {
+            month: "short",
+          }).format(new Date(`${day.date}T00:00:00`));
+          if (month !== previousMonth) {
+            const label = document.createElement("span");
+            label.textContent = month;
+            label.style.gridColumn = String(Math.floor(index / 7) + 1);
+            contributionMonths.append(label);
+            previousMonth = month;
+          }
           const square = document.createElement("span");
           square.className = "contribution-day";
-          square.dataset.level = contributionLevel(
-            day.contributionCount,
-            maximum,
-          );
-          square.title = `${day.contributionCount} contribution${day.contributionCount === 1 ? "" : "s"} on ${day.date}`;
+          square.dataset.level = contributionLevel(day.count, maximum);
+          square.title = `${day.count} contribution${day.count === 1 ? "" : "s"} on ${day.date}`;
           contributionGrid.append(square);
         });
         contributionTotal.textContent = contributionDays.length
-          ? `${data.totalContributions.toLocaleString()} contributions`
+          ? `${Object.values(data.total)
+              .reduce((sum, total) => sum + total, 0)
+              .toLocaleString()} contributions`
           : "Awaiting first refresh";
       }
       async function loadContributions() {
         try {
-          const response = await fetch("data/github-contributions.json", {
-            cache: "no-store",
-          });
+          const response = await fetch(
+            "https://github-contributions-api.jogruber.de/v4/aduseimedia-eng?y=last",
+          );
           if (!response.ok) throw new Error("Contribution chart unavailable");
           renderContributions(await response.json());
         } catch {
-          contributionTotal.textContent = "Chart updating soon";
+          renderContributions({ contributions: [], total: {} });
+          contributionTotal.textContent = "Chart temporarily unavailable";
         }
       }
       async function loadGitHubActivity() {
