@@ -573,6 +573,187 @@
       .live-site a:hover {
         color: var(--ink);
       }
+      .github-activity {
+        background: var(--cream);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .github-layout {
+        display: grid;
+        grid-template-columns: 0.75fr 1.25fr;
+        gap: 16px;
+        margin-top: 42px;
+      }
+      .github-summary,
+      .github-feed {
+        min-height: 220px;
+        padding: 27px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+      }
+      .github-summary small,
+      .github-feed-head small {
+        color: var(--muted);
+        font:
+          500 0.64rem "DM Mono",
+          monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .github-count {
+        margin: 34px 0 3px;
+        color: var(--ink);
+        font-size: clamp(3.4rem, 6vw, 5.2rem);
+        font-weight: 800;
+        letter-spacing: -0.09em;
+        line-height: 0.9;
+      }
+      .github-summary p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .github-feed-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .github-live {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #4c805e;
+        font:
+          500 0.61rem "DM Mono",
+          monospace;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .github-live:before {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #57a574;
+        content: "";
+      }
+      .github-events {
+        display: grid;
+        gap: 0;
+        margin: 18px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .github-event {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0;
+        border-top: 1px solid var(--line);
+        color: var(--ink);
+        font-size: 0.83rem;
+      }
+      .github-event time {
+        flex: 0 0 auto;
+        color: var(--muted);
+        font:
+          400 0.61rem "DM Mono",
+          monospace;
+      }
+      .github-empty {
+        margin: 35px 0 0;
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+      .github-contributions {
+        grid-column: 1 / -1;
+        padding: 27px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+      }
+      .github-contributions-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      .github-contributions-head h3 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 1.05rem;
+        letter-spacing: -0.04em;
+      }
+      .github-contributions-head p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 0.77rem;
+      }
+      .github-contribution-total {
+        color: var(--red);
+        font:
+          500 0.64rem "DM Mono",
+          monospace;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .contribution-grid {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-rows: repeat(7, 1fr);
+        grid-template-columns: repeat(53, minmax(7px, 1fr));
+        gap: 4px;
+        margin-top: 23px;
+      }
+      .contribution-day {
+        aspect-ratio: 1;
+        min-width: 0;
+        border-radius: 2px;
+        background: #ebe8e1;
+      }
+      .contribution-day[data-level="1"] {
+        background: #f2c4cc;
+      }
+      .contribution-day[data-level="2"] {
+        background: #e78796;
+      }
+      .contribution-day[data-level="3"] {
+        background: #df4a60;
+      }
+      .contribution-day[data-level="4"] {
+        background: var(--red);
+      }
+      .contribution-legend {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 5px;
+        margin-top: 13px;
+        color: var(--muted);
+        font:
+          400 0.57rem "DM Mono",
+          monospace;
+      }
+      .contribution-legend i {
+        width: 9px;
+        aspect-ratio: 1;
+        border-radius: 2px;
+        background: #ebe8e1;
+      }
+      .contribution-legend i:nth-of-type(2) {
+        background: #f2c4cc;
+      }
+      .contribution-legend i:nth-of-type(3) {
+        background: #e78796;
+      }
+      .contribution-legend i:nth-of-type(4) {
+        background: #df4a60;
+      }
+      .contribution-legend i:nth-of-type(5) {
+        background: var(--red);
+      }
       .work .section-label {
         color: #bbc0c7;
       }
@@ -1504,6 +1685,44 @@
         .live-sites-head .section-title {
           font-size: clamp(2.35rem, 12vw, 3.1rem);
         }
+        .github-layout {
+          grid-template-columns: 1fr;
+          gap: 12px;
+          margin-top: 28px;
+        }
+        .github-summary,
+        .github-feed {
+          min-height: 0;
+          padding: 21px;
+        }
+        .github-count {
+          margin-top: 22px;
+          font-size: 3.8rem;
+        }
+        .github-event {
+          align-items: flex-start;
+          font-size: 0.8rem;
+        }
+        .github-contributions {
+          padding: 21px;
+        }
+        .github-contributions-head {
+          display: block;
+        }
+        .github-contribution-total {
+          display: inline-block;
+          margin-top: 13px;
+        }
+        .contribution-grid {
+          gap: 2px;
+          margin-top: 18px;
+        }
+        .contribution-legend {
+          margin-top: 10px;
+        }
+        .github-event time {
+          white-space: nowrap;
+        }
         .timeline-item {
           grid-template-columns: 1fr;
           gap: 8px;
@@ -1992,6 +2211,54 @@
               <a href="https://kudisave.com" target="_blank" rel="noopener"
                 >Visit site <span>↗</span></a
               >
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="github-activity" id="github-activity">
+        <div class="shell">
+          <p class="section-label">GitHub Activity</p>
+          <h2 class="section-title">What I’m building, live.</h2>
+          <p class="section-copy">
+            Recent public activity from my GitHub account. Repository names stay
+            private here.
+          </p>
+          <div class="github-layout">
+            <article class="github-summary">
+              <small>Public repositories</small>
+              <div class="github-count" id="github-repo-count">—</div>
+              <p>Projects publicly available on GitHub.</p>
+            </article>
+            <article class="github-feed">
+              <div class="github-feed-head">
+                <small>Recent actions</small
+                ><span class="github-live">Live</span>
+              </div>
+              <ul class="github-events" id="github-events">
+                <li class="github-empty">Loading recent public activity…</li>
+              </ul>
+            </article>
+            <article class="github-contributions">
+              <div class="github-contributions-head">
+                <div>
+                  <h3>Contribution activity</h3>
+                  <p>The last 12 months of public GitHub contributions.</p>
+                </div>
+                <span
+                  class="github-contribution-total"
+                  id="github-contribution-total"
+                  >Loading chart</span
+                >
+              </div>
+              <div
+                class="contribution-grid"
+                id="contribution-grid"
+                aria-label="GitHub contribution chart"
+              ></div>
+              <div class="contribution-legend" aria-hidden="true">
+                <span>Less</span><i></i><i></i><i></i><i></i><i></i
+                ><span>More</span>
+              </div>
             </article>
           </div>
         </div>
@@ -2500,6 +2767,135 @@
       });
       addEventListener("resize", renderCarousel);
       renderCarousel();
+
+      const githubUser = "aduseimedia-eng";
+      const repoCount = document.getElementById("github-repo-count");
+      const githubEvents = document.getElementById("github-events");
+      function activityLabel(event) {
+        if (event.type === "PushEvent") {
+          const count =
+            event.payload.size || event.payload.commits?.length || 1;
+          return "Pushed " + count + " commit" + (count === 1 ? "" : "s");
+        }
+        if (event.type === "CreateEvent")
+          return "Created a new " + (event.payload.ref_type || "project");
+        if (event.type === "PullRequestEvent") return "Updated a pull request";
+        if (event.type === "IssuesEvent") return "Updated an issue";
+        if (event.type === "IssueCommentEvent") return "Commented on an issue";
+        if (event.type === "ReleaseEvent") return "Published a release";
+        return "Updated public GitHub activity";
+      }
+      function activityTime(timestamp) {
+        return new Intl.DateTimeFormat("en", {
+          month: "short",
+          day: "numeric",
+        }).format(new Date(timestamp));
+      }
+      const contributionGrid = document.getElementById("contribution-grid");
+      const contributionTotal = document.getElementById(
+        "github-contribution-total",
+      );
+      function contributionLevel(count, maximum) {
+        if (!count) return 0;
+        return Math.min(4, Math.max(1, Math.ceil((count / maximum) * 4)));
+      }
+      function renderContributions(data) {
+        const contributionDays = data.weeks
+          .flatMap((week) => week.contributionDays)
+          .slice(-371);
+        const days = contributionDays.length
+          ? contributionDays
+          : Array.from({ length: 371 }, () => ({
+              contributionCount: 0,
+              date: "Awaiting first refresh",
+            }));
+        const maximum = Math.max(
+          1,
+          ...days.map((day) => day.contributionCount),
+        );
+        contributionGrid.replaceChildren();
+        days.forEach((day) => {
+          const square = document.createElement("span");
+          square.className = "contribution-day";
+          square.dataset.level = contributionLevel(
+            day.contributionCount,
+            maximum,
+          );
+          square.title = `${day.contributionCount} contribution${day.contributionCount === 1 ? "" : "s"} on ${day.date}`;
+          contributionGrid.append(square);
+        });
+        contributionTotal.textContent = contributionDays.length
+          ? `${data.totalContributions.toLocaleString()} contributions`
+          : "Awaiting first refresh";
+      }
+      async function loadContributions() {
+        try {
+          const response = await fetch("data/github-contributions.json", {
+            cache: "no-store",
+          });
+          if (!response.ok) throw new Error("Contribution chart unavailable");
+          renderContributions(await response.json());
+        } catch {
+          contributionTotal.textContent = "Chart updating soon";
+        }
+      }
+      async function loadGitHubActivity() {
+        try {
+          const [profileResponse, eventsResponse] = await Promise.all([
+            fetch("https://api.github.com/users/" + githubUser),
+            fetch(
+              "https://api.github.com/users/" +
+                githubUser +
+                "/events/public?per_page=100",
+            ),
+          ]);
+          if (!profileResponse.ok || !eventsResponse.ok)
+            throw new Error("GitHub activity unavailable");
+          const profile = await profileResponse.json();
+          const events = await eventsResponse.json();
+          repoCount.textContent = profile.public_repos;
+          const recentEvents = events
+            .filter((event) =>
+              [
+                "PushEvent",
+                "CreateEvent",
+                "PullRequestEvent",
+                "IssuesEvent",
+                "IssueCommentEvent",
+                "ReleaseEvent",
+              ].includes(event.type),
+            )
+            .slice(0, 3);
+          githubEvents.replaceChildren();
+          if (!recentEvents.length) {
+            const empty = document.createElement("li");
+            empty.className = "github-empty";
+            empty.textContent = "No recent public activity to show yet.";
+            githubEvents.append(empty);
+            return;
+          }
+          recentEvents.forEach((event) => {
+            const item = document.createElement("li");
+            item.className = "github-event";
+            const label = document.createElement("span");
+            label.textContent = activityLabel(event);
+            const time = document.createElement("time");
+            time.dateTime = event.created_at;
+            time.textContent = activityTime(event.created_at);
+            item.append(label, time);
+            githubEvents.append(item);
+          });
+        } catch {
+          repoCount.textContent = "—";
+          githubEvents.replaceChildren();
+          const empty = document.createElement("li");
+          empty.className = "github-empty";
+          empty.textContent = "GitHub activity is temporarily unavailable.";
+          githubEvents.append(empty);
+        }
+      }
+      loadGitHubActivity();
+      loadContributions();
 
       const footer = document.querySelector("footer");
       let footerFrame;
