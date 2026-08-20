@@ -707,8 +707,8 @@
       }
       .contribution-day-labels {
         display: grid;
-        grid-template-rows: 20px repeat(7, 10px);
-        gap: 4px;
+        grid-template-rows: 22px repeat(7, 13px);
+        gap: 5px;
         color: var(--muted);
         font:
           400 0.54rem "DM Mono",
@@ -727,10 +727,10 @@
       }
       .contribution-months {
         display: grid;
-        grid-template-columns: repeat(53, 10px);
-        column-gap: 4px;
-        min-width: 738px;
-        height: 20px;
+        grid-template-columns: repeat(53, 13px);
+        column-gap: 5px;
+        min-width: 949px;
+        height: 22px;
         color: var(--muted);
         font:
           400 0.54rem "DM Mono",
@@ -742,14 +742,14 @@
       .contribution-grid {
         display: grid;
         grid-auto-flow: column;
-        grid-template-rows: repeat(7, 10px);
-        grid-template-columns: repeat(53, 10px);
-        gap: 4px;
-        min-width: 738px;
+        grid-template-rows: repeat(7, 13px);
+        grid-template-columns: repeat(53, 13px);
+        gap: 5px;
+        min-width: 949px;
       }
       .contribution-day {
-        width: 10px;
-        height: 10px;
+        width: 13px;
+        height: 13px;
         border-radius: 2px;
         background: #ebe8e1;
       }
@@ -1777,7 +1777,15 @@
         .contribution-grid,
         .contribution-months {
           min-width: 682px;
+          grid-template-columns: repeat(53, 10px);
           gap: 3px;
+        }
+        .contribution-grid {
+          grid-template-rows: repeat(7, 10px);
+        }
+        .contribution-day {
+          width: 10px;
+          height: 10px;
         }
         .contribution-legend {
           margin-top: 10px;
@@ -2294,7 +2302,7 @@
             <article class="github-feed">
               <div class="github-feed-head">
                 <small>Recent actions</small
-                ><span class="github-live">Live</span>
+                ><span class="github-live">Updates every minute</span>
               </div>
               <ul class="github-events" id="github-events">
                 <li class="github-empty">Loading recent public activity…</li>
@@ -2867,10 +2875,12 @@
         }).format(new Date(timestamp));
       }
       const contributionGrid = document.getElementById("contribution-grid");
+      const contributionScroll = document.querySelector(".contribution-scroll");
       const contributionMonths = document.getElementById("contribution-months");
       const contributionTotal = document.getElementById(
         "github-contribution-total",
       );
+      let contributionInitialPosition = true;
       function contributionLevel(count, maximum) {
         if (!count) return 0;
         return Math.min(4, Math.max(1, Math.ceil((count / maximum) * 4)));
@@ -2909,6 +2919,12 @@
               .reduce((sum, total) => sum + total, 0)
               .toLocaleString()} contributions`
           : "Awaiting first refresh";
+        if (contributionInitialPosition) {
+          requestAnimationFrame(() => {
+            contributionScroll.scrollLeft = contributionScroll.scrollWidth;
+          });
+          contributionInitialPosition = false;
+        }
       }
       async function loadContributions() {
         try {
@@ -2978,6 +2994,7 @@
         }
       }
       loadGitHubActivity();
+      setInterval(loadGitHubActivity, 60_000);
       loadContributions();
 
       const footer = document.querySelector("footer");
