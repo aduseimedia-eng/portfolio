@@ -810,6 +810,52 @@
         margin-bottom: 3px;
         letter-spacing: 0.07em;
       }
+      .design-lightbox {
+        position: fixed;
+        z-index: 100;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+        background: rgba(19, 29, 42, 0.94);
+      }
+      .design-lightbox.is-open {
+        display: flex;
+      }
+      .lightbox-content {
+        width: min(100%, 620px);
+        max-height: 100%;
+      }
+      .lightbox-image {
+        display: block;
+        width: 100%;
+        max-height: calc(100vh - 125px);
+        border-radius: 6px;
+        object-fit: contain;
+        background: #fff;
+      }
+      .lightbox-caption {
+        margin: 12px 44px 0 0;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+      .lightbox-close {
+        position: absolute;
+        top: 17px;
+        right: 17px;
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        background: transparent;
+        color: #fff;
+        font-size: 1.45rem;
+        cursor: pointer;
+      }
       .carousel-footer {
         display: flex;
         align-items: center;
@@ -972,17 +1018,19 @@
       .contact-quick a,
       .contact-location {
         padding: 10px 13px;
-        border: 1px solid #e7b3bd;
+        border: 1px solid #dedede;
         border-radius: 5px;
-        background: #fbe9ed;
-        color: var(--ink);
+        background: #f5f1e9;
+        color: var(--muted);
         font:
           500 0.68rem "DM Mono",
           monospace;
         text-decoration: none;
       }
       .contact-quick a:hover {
-        background: #f7d4dc;
+        border-color: var(--red);
+        background: #fff;
+        color: var(--red);
       }
       .contact-location {
         display: inline-block;
@@ -1136,30 +1184,20 @@
         align-items: center;
         gap: 7px;
         color: var(--ink);
-        border: 0;
-        background: transparent;
-        padding: 7px 0 8px;
+        border: 1px solid #dedede;
+        border-radius: 5px;
+        background: #f5f1e9;
+        padding: 7px 10px;
         font-weight: 700;
         letter-spacing: 0.02em;
       }
       .availability:after {
-        position: absolute;
-        right: 0;
-        bottom: 3px;
-        left: 0;
-        height: 1px;
-        background: var(--red);
-        content: "";
-        transform: scaleX(0);
-        transform-origin: right;
-        transition: transform 0.2s ease;
+        display: none;
       }
       .availability:hover {
+        border-color: var(--red);
+        background: #fff;
         color: var(--red);
-      }
-      .availability:hover:after {
-        transform: scaleX(1);
-        transform-origin: left;
       }
       .availability svg {
         width: 15px;
@@ -1380,13 +1418,13 @@
           display: inline-flex;
           width: auto;
           height: auto;
-          padding: 7px 0 8px;
+          padding: 7px 10px;
           font-size: 0.62rem;
-          border: 0;
-          border-radius: 0;
+          border: 1px solid #dedede;
+          border-radius: 5px;
         }
         .availability:after {
-          display: block;
+          display: none;
         }
         .availability svg {
           width: 14px;
@@ -1493,6 +1531,7 @@
         .art {
           flex-basis: 100%;
           height: 360px;
+          cursor: zoom-in;
         }
         .carousel {
           margin-top: 30px;
@@ -1819,8 +1858,8 @@
               </span>
               <h3>Build</h3>
               <p>
-                I notice small things. The kerning, the timing, the hover state
-                &mdash; those details are where trust is either built or lost.
+                I notice small things. The kerning, the timing, the hover state,
+                those details are where trust is either built or lost.
               </p>
             </article>
             <article class="process-step">
@@ -1998,7 +2037,9 @@
                     alt="Fellows Seminar campaign artwork"
                     loading="lazy"
                   />
-                  <figcaption><small>IoD-Gh Seminar</small>Fellows Roundtable</figcaption>
+                  <figcaption>
+                    <small>IoD-Gh Seminar</small>Fellows Roundtable
+                  </figcaption>
                 </figure>
                 <figure class="art">
                   <img
@@ -2047,7 +2088,9 @@
                     alt="A3 poster design"
                     loading="lazy"
                   />
-                  <figcaption><small>Print design</small>Be the Best</figcaption>
+                  <figcaption>
+                    <small>Print design</small>Be the Best
+                  </figcaption>
                 </figure>
                 <figure class="art">
                   <img
@@ -2151,8 +2194,7 @@
                   />
                   <figcaption><small>Event design</small>Finalists</figcaption>
                 </figure>
-                
-                
+
                 <figure class="art">
                   <img
                     src="assets/Open Nominations.png"
@@ -2329,6 +2371,19 @@
         -->
       </section>
     </main>
+    <div class="design-lightbox" id="design-lightbox" aria-hidden="true">
+      <button
+        class="lightbox-close"
+        type="button"
+        aria-label="Close full image view"
+      >
+        &times;
+      </button>
+      <div class="lightbox-content">
+        <img class="lightbox-image" id="lightbox-image" src="" alt="" />
+        <p class="lightbox-caption" id="lightbox-caption"></p>
+      </div>
+    </div>
     <footer>
       <div class="shell footer-main">
         <div class="footer-intro">
@@ -2384,6 +2439,39 @@
         const preload = new Image();
         preload.src = image.src;
         return preload;
+      });
+      const lightbox = document.getElementById("design-lightbox");
+      const lightboxImage = document.getElementById("lightbox-image");
+      const lightboxCaption = document.getElementById("lightbox-caption");
+      const lightboxClose = lightbox.querySelector(".lightbox-close");
+      function closeLightbox() {
+        lightbox.classList.remove("is-open");
+        lightbox.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+      function openLightbox(image) {
+        if (innerWidth > 540) return;
+        const caption = image
+          .closest(".art")
+          .querySelector("figcaption")
+          .textContent.trim();
+        lightboxImage.src = image.currentSrc || image.src;
+        lightboxImage.alt = image.alt;
+        lightboxCaption.textContent = caption;
+        lightbox.classList.add("is-open");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        lightboxClose.focus();
+      }
+      galleryImages.forEach((image) => {
+        image.addEventListener("click", () => openLightbox(image));
+      });
+      lightboxClose.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeLightbox();
       });
       let slide = 0;
       function visible() {
