@@ -2825,6 +2825,14 @@
       -->
     </footer>
     <script>
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+      addEventListener("load", () => {
+        const navigation = performance.getEntriesByType("navigation")[0];
+        if (navigation?.type === "reload") window.scrollTo(0, 0);
+      });
+
       const designWork = document.getElementById("design");
       const contactSection = document.getElementById("contact");
       contactSection.parentNode.insertBefore(designWork, contactSection);
