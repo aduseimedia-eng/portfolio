@@ -769,8 +769,15 @@
       .contribution-day {
         width: 13px;
         height: 13px;
+        padding: 0;
+        border: 0;
         border-radius: 2px;
         background: #ebe8e1;
+        cursor: pointer;
+      }
+      .contribution-day.is-selected {
+        outline: 2px solid var(--ink);
+        outline-offset: 1px;
       }
       .contribution-day[data-level="1"] {
         background: #f2c4cc;
@@ -814,6 +821,9 @@
         background: var(--red);
       }
       .contribution-swipe {
+        display: none;
+      }
+      .contribution-tap-details {
         display: none;
       }
       .work .section-label {
@@ -1797,6 +1807,13 @@
           letter-spacing: 0.04em;
           text-transform: uppercase;
         }
+        .contribution-tap-details {
+          display: block;
+          min-height: 1.2em;
+          margin: 8px 0 0 29px;
+          color: var(--ink);
+          font-size: 0.72rem;
+        }
         .contribution-grid,
         .contribution-months {
           min-width: 682px;
@@ -2367,6 +2384,13 @@
                 </div>
               </div>
               <p class="contribution-swipe">Swipe to explore the year →</p>
+              <p
+                class="contribution-tap-details"
+                id="contribution-tap-details"
+                aria-live="polite"
+              >
+                Tap a day to see its activity.
+              </p>
               <div class="contribution-legend" aria-hidden="true">
                 <span>Less</span><i></i><i></i><i></i><i></i><i></i
                 ><span>More</span>
@@ -2916,10 +2940,23 @@
       const contributionRefresh = document.getElementById(
         "contribution-refresh",
       );
+      const contributionTapDetails = document.getElementById(
+        "contribution-tap-details",
+      );
       let contributionInitialPosition = true;
       function contributionLevel(count, maximum) {
         if (!count) return 0;
         return Math.min(4, Math.max(1, Math.ceil((count / maximum) * 4)));
+      }
+      function contributionDescription(day) {
+        const date = /^\d{4}-\d{2}-\d{2}$/.test(day.date)
+          ? new Intl.DateTimeFormat("en", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            }).format(new Date(`${day.date}T00:00:00`))
+          : day.date;
+        return `${day.count} contribution${day.count === 1 ? "" : "s"} on ${date}`;
       }
       function renderContributions(data) {
         const contributionDays = (data.contributions || []).slice(-371);
@@ -2934,9 +2971,11 @@
         contributionMonths.replaceChildren();
         let previousMonth = "";
         days.forEach((day, index) => {
-          const month = new Intl.DateTimeFormat("en", {
-            month: "short",
-          }).format(new Date(`${day.date}T00:00:00`));
+          const month = /^\d{4}-\d{2}-\d{2}$/.test(day.date)
+            ? new Intl.DateTimeFormat("en", {
+                month: "short",
+              }).format(new Date(`${day.date}T00:00:00`))
+            : "";
           if (month !== previousMonth) {
             const label = document.createElement("span");
             label.textContent = month;
@@ -2944,10 +2983,20 @@
             contributionMonths.append(label);
             previousMonth = month;
           }
-          const square = document.createElement("span");
+          const square = document.createElement("button");
+          square.type = "button";
           square.className = "contribution-day";
           square.dataset.level = contributionLevel(day.count, maximum);
-          square.title = `${day.count} contribution${day.count === 1 ? "" : "s"} on ${day.date}`;
+          square.title = contributionDescription(day);
+          square.setAttribute("aria-label", square.title);
+          square.addEventListener("click", () => {
+            if (innerWidth > 540) return;
+            contributionGrid
+              .querySelector(".is-selected")
+              ?.classList.remove("is-selected");
+            square.classList.add("is-selected");
+            contributionTapDetails.textContent = square.title;
+          });
           contributionGrid.append(square);
         });
         contributionTotal.textContent = contributionDays.length
