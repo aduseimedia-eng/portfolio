@@ -592,6 +592,23 @@
         border-radius: 7px;
         background: #fff;
       }
+      .github-summary {
+        position: relative;
+        overflow: hidden;
+      }
+      .github-summary > :not(.github-mark) {
+        position: relative;
+        z-index: 1;
+      }
+      .github-mark {
+        position: absolute;
+        right: -18px;
+        bottom: -22px;
+        width: 178px;
+        opacity: 0.055;
+        pointer-events: none;
+        user-select: none;
+      }
       .github-summary small,
       .github-feed-head small {
         color: var(--muted);
@@ -1768,6 +1785,12 @@
           min-height: 0;
           padding: 21px;
         }
+        .github-mark {
+          right: -12px;
+          bottom: -18px;
+          width: 142px;
+          opacity: 0.05;
+        }
         .github-count {
           margin-top: 22px;
           font-size: 3.8rem;
@@ -2336,6 +2359,12 @@
           </p>
           <div class="github-layout">
             <article class="github-summary">
+              <img
+                class="github-mark"
+                src="assets/github%20png.png"
+                alt=""
+                aria-hidden="true"
+              />
               <small>Public repositories</small>
               <div class="github-count" id="github-repo-count">16</div>
               <p>Projects publicly available on GitHub.</p>
@@ -2412,6 +2441,7 @@
                   <img
                     src="assets/Travel.png"
                     alt="Heightlinks travel campaign artwork"
+                    fetchpriority="high"
                   />
                   <figcaption>
                     <small>Campaign artwork</small>Heightlinks Travel &amp;
@@ -2842,13 +2872,8 @@
         cards = [...track.children],
         status = document.getElementById("carousel-status");
       const galleryImages = [...track.querySelectorAll("img")];
-      const galleryPreloads = galleryImages.map((image) => {
-        image.loading = "eager";
-        image.decoding = "async";
-        const preload = new Image();
-        preload.src = image.src;
-        return preload;
-      });
+      galleryImages[0].loading = "eager";
+      galleryImages[0].decoding = "async";
       const lightbox = document.getElementById("design-lightbox");
       const lightboxImage = document.getElementById("lightbox-image");
       const lightboxCaption = document.getElementById("lightbox-caption");
