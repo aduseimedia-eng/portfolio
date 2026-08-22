@@ -593,6 +593,23 @@
         border-radius: 7px;
         background: #fff;
       }
+      .github-summary {
+        position: relative;
+        overflow: hidden;
+      }
+      .github-summary > :not(.github-mark) {
+        position: relative;
+        z-index: 1;
+      }
+      .github-mark {
+        position: absolute;
+        right: -18px;
+        bottom: -22px;
+        width: 178px;
+        opacity: 0.055;
+        pointer-events: none;
+        user-select: none;
+      }
       .github-summary small,
       .github-feed-head small {
         color: var(--muted);
@@ -1717,6 +1734,7 @@
         }
         .actions .button {
           width: 100%;
+          justify-content: center;
         }
         .code-card {
           width: 100%;
@@ -1771,6 +1789,12 @@
         .github-feed {
           min-height: 0;
           padding: 21px;
+        }
+        .github-mark {
+          right: -12px;
+          bottom: -18px;
+          width: 142px;
+          opacity: 0.05;
         }
         .github-count {
           margin-top: 22px;
@@ -2337,8 +2361,14 @@
           </p>
           <div class="github-layout">
             <article class="github-summary">
+              <img
+                class="github-mark"
+                src="assets/github%20png.png"
+                alt=""
+                aria-hidden="true"
+              />
               <small>Public repositories</small>
-              <div class="github-count" id="github-repo-count">—</div>
+              <div class="github-count" id="github-repo-count">16</div>
               <p>Projects publicly available on GitHub.</p>
             </article>
             <article class="github-feed">
@@ -2413,6 +2443,7 @@
                   <img
                     src="assets/Travel.png"
                     alt="Heightlinks travel campaign artwork"
+                    fetchpriority="high"
                   />
                   <figcaption>
                     <small>Campaign artwork</small>Heightlinks Travel &amp;
@@ -2840,13 +2871,8 @@
         cards = [...track.children],
         status = document.getElementById("carousel-status");
       const galleryImages = [...track.querySelectorAll("img")];
-      const galleryPreloads = galleryImages.map((image) => {
-        image.loading = "eager";
-        image.decoding = "async";
-        const preload = new Image();
-        preload.src = image.src;
-        return preload;
-      });
+      galleryImages[0].loading = "eager";
+      galleryImages[0].decoding = "async";
       const lightbox = document.getElementById("design-lightbox");
       const lightboxImage = document.getElementById("lightbox-image");
       const lightboxCaption = document.getElementById("lightbox-caption");
@@ -3070,6 +3096,48 @@
           }
         }
       }
+      const githubActivityCacheKey = "portfolio-github-activity";
+      function renderGitHubActivity(profile, events) {
+        repoCount.textContent = profile.public_repos;
+        const recentEvents = events
+          .filter((event) =>
+            [
+              "PushEvent",
+              "CreateEvent",
+              "PullRequestEvent",
+              "IssuesEvent",
+              "IssueCommentEvent",
+              "ReleaseEvent",
+            ].includes(event.type),
+          )
+          .slice(0, 3);
+        githubEvents.replaceChildren();
+        if (!recentEvents.length) {
+          const empty = document.createElement("li");
+          empty.className = "github-empty";
+          empty.textContent = "No recent public activity to show yet.";
+          githubEvents.append(empty);
+          return;
+        }
+        recentEvents.forEach((event) => {
+          const item = document.createElement("li");
+          item.className = "github-event";
+          const label = document.createElement("span");
+          label.textContent = activityLabel(event);
+          const time = document.createElement("time");
+          time.dateTime = event.created_at;
+          time.textContent = activityTime(event.created_at);
+          item.append(label, time);
+          githubEvents.append(item);
+        });
+      }
+      function showGitHubActivityMessage(message) {
+        githubEvents.replaceChildren();
+        const empty = document.createElement("li");
+        empty.className = "github-empty";
+        empty.textContent = message;
+        githubEvents.append(empty);
+      }
       async function loadGitHubActivity() {
         try {
           const [profileResponse, eventsResponse] = await Promise.all([
@@ -3084,51 +3152,32 @@
             throw new Error("GitHub activity unavailable");
           const profile = await profileResponse.json();
           const events = await eventsResponse.json();
-          repoCount.textContent = profile.public_repos;
-          const recentEvents = events
-            .filter((event) =>
-              [
-                "PushEvent",
-                "CreateEvent",
-                "PullRequestEvent",
-                "IssuesEvent",
-                "IssueCommentEvent",
-                "ReleaseEvent",
-              ].includes(event.type),
-            )
-            .slice(0, 3);
-          githubEvents.replaceChildren();
-          if (!recentEvents.length) {
-            const empty = document.createElement("li");
-            empty.className = "github-empty";
-            empty.textContent = "No recent public activity to show yet.";
-            githubEvents.append(empty);
-            return;
-          }
-          recentEvents.forEach((event) => {
-            const item = document.createElement("li");
-            item.className = "github-event";
-            const label = document.createElement("span");
-            label.textContent = activityLabel(event);
-            const time = document.createElement("time");
-            time.dateTime = event.created_at;
-            time.textContent = activityTime(event.created_at);
-            item.append(label, time);
-            githubEvents.append(item);
-          });
+          renderGitHubActivity(profile, events);
+          try {
+            localStorage.setItem(
+              githubActivityCacheKey,
+              JSON.stringify({ profile, events }),
+            );
+          } catch {}
         } catch {
-          repoCount.textContent = "—";
-          githubEvents.replaceChildren();
-          const empty = document.createElement("li");
-          empty.className = "github-empty";
-          empty.textContent = "GitHub activity is temporarily unavailable.";
-          githubEvents.append(empty);
+          try {
+            const cached = JSON.parse(
+              localStorage.getItem(githubActivityCacheKey) || "null",
+            );
+            if (cached?.profile && cached?.events) {
+              renderGitHubActivity(cached.profile, cached.events);
+              return;
+            }
+          } catch {}
+          showGitHubActivityMessage(
+            "Recent public updates will appear here shortly.",
+          );
         }
       }
       loadGitHubActivity();
-      setInterval(loadGitHubActivity, 60_000);
+      setInterval(loadGitHubActivity, 900_000);
       loadContributions();
-      contributionRefresh.addEventListener("click", () =>
+      contributionRefresh?.addEventListener("click", () =>
         loadContributions(true),
       );
 
