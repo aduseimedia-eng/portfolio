@@ -1940,7 +1940,22 @@
         }
         .expert {
           min-height: 132px;
-          padding: 19px 54px 19px 19px;
+          padding: 19px;
+          overflow: hidden;
+        }
+        .expert .num {
+          top: 13px;
+          right: 16px;
+          z-index: 0;
+          color: rgba(217, 31, 58, 0.09);
+          font-size: 4.25rem;
+          letter-spacing: -0.09em;
+          pointer-events: none;
+        }
+        .expert h3,
+        .expert p {
+          position: relative;
+          z-index: 1;
         }
         .contact {
           padding: 70px 0;
@@ -2378,8 +2393,7 @@
           <p class="section-label">GitHub Activity</p>
           <h2 class="section-title">What I’m building, live.</h2>
           <p class="section-copy">
-            Recent public activity from my GitHub account. Repository names stay
-            private here.
+            Recent public activity from my GitHub account.
           </p>
           <div class="github-layout">
             <article class="github-summary">
