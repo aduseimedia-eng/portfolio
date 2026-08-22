@@ -166,7 +166,6 @@
       .button.primary {
         background: var(--lime);
         color: #151710;
-       
       }
       .button.primary:hover {
         background: #fff;
@@ -1494,7 +1493,6 @@
         background: var(--red);
         color: #fff;
         text-align: justify;
-        
       }
       .button.primary:hover {
         background: var(--ink);
@@ -1877,8 +1875,28 @@
           grid-template-columns: 1fr;
         }
         .process-step {
+          position: relative;
           min-height: 0;
           padding: 22px;
+          overflow: hidden;
+        }
+        .process-number {
+          position: absolute;
+          top: 17px;
+          right: 18px;
+          z-index: 0;
+          color: rgba(217, 31, 58, 0.09);
+          font-size: 4.7rem;
+          pointer-events: none;
+        }
+        .process-icon,
+        .process-step h3,
+        .process-step p {
+          position: relative;
+          z-index: 1;
+        }
+        .process-icon {
+          margin-top: 0;
         }
         .process-step h3 {
           margin-top: 18px;
@@ -2019,8 +2037,12 @@
                 use, solid under the hood, and maintainable long after launch.
               </p>
               <div class="actions">
-                <a href="#live-sites" class="button primary">Explore my work ↘</a>
-                <a href="mailto:hello@aduseimedia.codes" class="button ghost">Get in touch</a>
+                <a href="#live-sites" class="button primary"
+                  >Explore my work ↘</a
+                >
+                <a href="mailto:hello@aduseimedia.codes" class="button ghost"
+                  >Get in touch</a
+                >
               </div>
             </div>
             <div
@@ -2308,8 +2330,8 @@
               <h2 class="section-title">Sites I've Built.</h2>
             </div>
             <p class="section-copy">
-              Working products you can open and explore right now. Some sites are
-              used internally by popular companies and they're not here.
+              Working products you can open and explore right now. Some sites
+              are used internally by popular companies and they're not here.
             </p>
           </div>
           <div class="live-sites-grid">
@@ -2357,7 +2379,7 @@
           <h2 class="section-title">What I’m building, live.</h2>
           <p class="section-copy">
             Recent public activity from my GitHub account. Repository names stay
-            private here. 
+            private here.
           </p>
           <div class="github-layout">
             <article class="github-summary">
@@ -2736,8 +2758,8 @@
               <span class="num">03</span>
               <h3>Data</h3>
               <p>
-                Relational databases, MySQL, data modelling, query design, Postgres and
-                data integrity.
+                Relational databases, MySQL, data modelling, query design,
+                Postgres and data integrity.
               </p>
             </article>
             <article class="expert">
@@ -2828,17 +2850,20 @@
           <div class="footer-links">
             <a href="mailto:hello@aduseimedia.codes">hello@aduseimedia.codes</a>
             <a href="https://wa.me/233578224669" target="_blank" rel="noopener"
-              >WhatsApp &#8599;</a>
+              >WhatsApp &#8599;</a
+            >
             <a
               href="https://www.instagram.com/mr_adusei7/"
               target="_blank"
               rel="noopener"
-              >Instagram &#8599;</a>
+              >Instagram &#8599;</a
+            >
             <a
               href="https://www.snapchat.com/add/mr_adusei7"
               target="_blank"
               rel="noopener"
-              >Snapchat &#8599;</a>
+              >Snapchat &#8599;</a
+            >
           </div>
         </div>
         <a class="footer-top" href="#top">Back to top ↑</a>
