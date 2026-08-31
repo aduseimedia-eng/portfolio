@@ -1126,6 +1126,32 @@
         font-size: 1.45rem;
         cursor: pointer;
       }
+      .lightbox-nav {
+        position: absolute;
+        top: 50%;
+        z-index: 1;
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        background: rgba(19, 29, 42, 0.58);
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.35rem;
+        transform: translateY(-50%);
+      }
+      .lightbox-nav:hover,
+      .lightbox-nav:focus-visible {
+        background: rgba(255, 255, 255, 0.18);
+      }
+      .lightbox-prev {
+        left: 17px;
+      }
+      .lightbox-next {
+        right: 17px;
+      }
       .carousel-footer {
         display: flex;
         align-items: center;
@@ -2880,6 +2906,22 @@
       >
         &times;
       </button>
+      <button
+        class="lightbox-nav lightbox-prev"
+        id="lightbox-prev"
+        type="button"
+        aria-label="Show previous image"
+      >
+        &#8592;
+      </button>
+      <button
+        class="lightbox-nav lightbox-next"
+        id="lightbox-next"
+        type="button"
+        aria-label="Show next image"
+      >
+        &#8594;
+      </button>
       <div class="lightbox-content">
         <img class="lightbox-image" id="lightbox-image" src="" alt="" />
         <p class="lightbox-caption" id="lightbox-caption"></p>
@@ -2952,12 +2994,18 @@
       const lightboxImage = document.getElementById("lightbox-image");
       const lightboxCaption = document.getElementById("lightbox-caption");
       const lightboxClose = lightbox.querySelector(".lightbox-close");
+      const lightboxPrevious = document.getElementById("lightbox-prev");
+      const lightboxNext = document.getElementById("lightbox-next");
+      let lightboxIndex = 0;
+      let lightboxTouchStartX = null;
       function closeLightbox() {
         lightbox.classList.remove("is-open");
         lightbox.setAttribute("aria-hidden", "true");
         document.body.style.overflow = "";
       }
-      function openLightbox(image) {
+      function showLightboxImage(index) {
+        lightboxIndex = (index + galleryImages.length) % galleryImages.length;
+        const image = galleryImages[lightboxIndex];
         const caption = image
           .closest(".art")
           .querySelector("figcaption")
@@ -2965,6 +3013,9 @@
         lightboxImage.src = image.currentSrc || image.src;
         lightboxImage.alt = image.alt;
         lightboxCaption.textContent = caption;
+      }
+      function openLightbox(image) {
+        showLightboxImage(galleryImages.indexOf(image));
         lightbox.classList.add("is-open");
         lightbox.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
@@ -2974,11 +3025,38 @@
         image.addEventListener("click", () => openLightbox(image));
       });
       lightboxClose.addEventListener("click", closeLightbox);
+      lightboxPrevious.addEventListener("click", () =>
+        showLightboxImage(lightboxIndex - 1),
+      );
+      lightboxNext.addEventListener("click", () =>
+        showLightboxImage(lightboxIndex + 1),
+      );
       lightbox.addEventListener("click", (event) => {
         if (event.target === lightbox) closeLightbox();
       });
+      lightbox.addEventListener(
+        "touchstart",
+        (event) => {
+          lightboxTouchStartX = event.changedTouches[0].clientX;
+        },
+        { passive: true },
+      );
+      lightbox.addEventListener(
+        "touchend",
+        (event) => {
+          if (lightboxTouchStartX === null) return;
+          const distance = event.changedTouches[0].clientX - lightboxTouchStartX;
+          lightboxTouchStartX = null;
+          if (Math.abs(distance) < 45) return;
+          showLightboxImage(lightboxIndex + (distance < 0 ? 1 : -1));
+        },
+        { passive: true },
+      );
       addEventListener("keydown", (event) => {
         if (event.key === "Escape") closeLightbox();
+        if (!lightbox.classList.contains("is-open")) return;
+        if (event.key === "ArrowLeft") showLightboxImage(lightboxIndex - 1);
+        if (event.key === "ArrowRight") showLightboxImage(lightboxIndex + 1);
       });
       let slide = 0;
       function visible() {
