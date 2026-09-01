@@ -2977,7 +2977,7 @@
       }
       addEventListener("load", () => {
         const navigation = performance.getEntriesByType("navigation")[0];
-        if (navigation?.type === "reload") window.scrollTo(0, 0);
+        if (navigation && navigation.type === "reload") window.scrollTo(0, 0);
       });
 
       const designWork = document.getElementById("design");
@@ -3127,14 +3127,18 @@
       const githubUser = "aduseimedia-eng";
       const repoCount = document.getElementById("github-repo-count");
       const githubEvents = document.getElementById("github-events");
+      function clearChildren(element) {
+        while (element.firstChild) element.removeChild(element.firstChild);
+      }
       function activityLabel(event) {
+        const payload = event.payload || {};
         if (event.type === "PushEvent") {
           const count =
-            event.payload.size || event.payload.commits?.length || 1;
+            payload.size || (payload.commits && payload.commits.length) || 1;
           return "Pushed " + count + " commit" + (count === 1 ? "" : "s");
         }
         if (event.type === "CreateEvent")
-          return "Created a new " + (event.payload.ref_type || "project");
+          return "Created a new " + (payload.ref_type || "project");
         if (event.type === "PullRequestEvent") return "Updated a pull request";
         if (event.type === "IssuesEvent") return "Updated an issue";
         if (event.type === "IssueCommentEvent") return "Commented on an issue";
@@ -3183,8 +3187,8 @@
               date: "Awaiting first refresh",
             }));
         const maximum = Math.max(1, ...days.map((day) => day.count));
-        contributionGrid.replaceChildren();
-        contributionMonths.replaceChildren();
+        clearChildren(contributionGrid);
+        clearChildren(contributionMonths);
         let previousMonth = "";
         days.forEach((day, index) => {
           const month = /^\d{4}-\d{2}-\d{2}$/.test(day.date)
@@ -3207,9 +3211,8 @@
           square.setAttribute("aria-label", square.title);
           square.addEventListener("click", () => {
             if (innerWidth > 540) return;
-            contributionGrid
-              .querySelector(".is-selected")
-              ?.classList.remove("is-selected");
+            const selectedDay = contributionGrid.querySelector(".is-selected");
+            if (selectedDay) selectedDay.classList.remove("is-selected");
             square.classList.add("is-selected");
             contributionTapDetails.textContent = square.title;
           });
@@ -3264,7 +3267,7 @@
             ].includes(event.type),
           )
           .slice(0, 3);
-        githubEvents.replaceChildren();
+        clearChildren(githubEvents);
         if (!recentEvents.length) {
           const empty = document.createElement("li");
           empty.className = "github-empty";
@@ -3285,7 +3288,7 @@
         });
       }
       function showGitHubActivityMessage(message) {
-        githubEvents.replaceChildren();
+        clearChildren(githubEvents);
         const empty = document.createElement("li");
         empty.className = "github-empty";
         empty.textContent = message;
@@ -3317,7 +3320,7 @@
             const cached = JSON.parse(
               localStorage.getItem(githubActivityCacheKey) || "null",
             );
-            if (cached?.profile && cached?.events) {
+            if (cached && cached.profile && cached.events) {
               renderGitHubActivity(cached.profile, cached.events);
               return;
             }
@@ -3330,9 +3333,11 @@
       loadGitHubActivity();
       setInterval(loadGitHubActivity, 900_000);
       loadContributions();
-      contributionRefresh?.addEventListener("click", () =>
-        loadContributions(true),
-      );
+      if (contributionRefresh) {
+        contributionRefresh.addEventListener("click", () =>
+          loadContributions(true),
+        );
+      }
 
       const footer = document.querySelector("footer");
       let footerFrame;
