@@ -3272,6 +3272,7 @@
         }
       }
       const githubActivityCacheKey = "portfolio-github-activity";
+      const githubActivityCacheMaxAge = 6 * 60 * 60 * 1000;
       function renderGitHubActivity(profile, events) {
         repoCount.textContent = profile.public_repos;
         const recentEvents = events
@@ -3316,11 +3317,18 @@
       async function loadGitHubActivity() {
         try {
           const [profileResponse, eventsResponse] = await Promise.all([
-            fetch("https://api.github.com/users/" + githubUser),
+            fetch("https://api.github.com/users/" + githubUser, {
+              cache: "no-store",
+              headers: { Accept: "application/vnd.github+json" },
+            }),
             fetch(
               "https://api.github.com/users/" +
                 githubUser +
                 "/events/public?per_page=100",
+              {
+                cache: "no-store",
+                headers: { Accept: "application/vnd.github+json" },
+              },
             ),
           ]);
           if (!profileResponse.ok || !eventsResponse.ok)
@@ -3331,7 +3339,7 @@
           try {
             localStorage.setItem(
               githubActivityCacheKey,
-              JSON.stringify({ profile, events }),
+              JSON.stringify({ profile, events, fetchedAt: Date.now() }),
             );
           } catch {}
         } catch {
@@ -3339,7 +3347,12 @@
             const cached = JSON.parse(
               localStorage.getItem(githubActivityCacheKey) || "null",
             );
-            if (cached && cached.profile && cached.events) {
+            if (
+              cached &&
+              cached.profile &&
+              cached.events &&
+              Date.now() - cached.fetchedAt < githubActivityCacheMaxAge
+            ) {
               renderGitHubActivity(cached.profile, cached.events);
               return;
             }
