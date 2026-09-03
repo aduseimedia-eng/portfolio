@@ -3183,9 +3183,13 @@
         "contribution-tap-details",
       );
       let contributionInitialPosition = true;
-      function contributionLevel(count, maximum) {
-        if (!count) return 0;
-        return Math.min(4, Math.max(1, Math.ceil((count / maximum) * 4)));
+      function contributionLevel(day, maximum) {
+        const sourceLevel = Number(day.level);
+        if (Number.isFinite(sourceLevel)) {
+          return Math.min(4, Math.max(0, Math.round(sourceLevel)));
+        }
+        if (!day.count) return 0;
+        return Math.min(4, Math.max(1, Math.ceil((day.count / maximum) * 4)));
       }
       function contributionDescription(day) {
         const date = /^\d{4}-\d{2}-\d{2}$/.test(day.date)
@@ -3225,7 +3229,7 @@
           const square = document.createElement("button");
           square.type = "button";
           square.className = "contribution-day";
-          square.dataset.level = contributionLevel(day.count, maximum);
+          square.dataset.level = contributionLevel(day, maximum);
           square.title = contributionDescription(day);
           square.setAttribute("aria-label", square.title);
           square.addEventListener("click", () => {
